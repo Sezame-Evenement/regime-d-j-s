@@ -1,0 +1,151 @@
+$(document).ready(function() {
+    $('#regime-demi-j-s').val('Demi-journée');
+
+    function updateValue() {
+        let selectedStartHour = parseInt($('#select1').val().split(':')[0], 10);
+        let selectedEndHour = parseInt($('#select2').val().split(':')[0], 10);
+
+        let isDemiJournee = (selectedStartHour >= 8 && selectedEndHour <= 12) || (selectedStartHour >= 14 && selectedEndHour <= 18);
+        let isSoiree = selectedStartHour >= 18 || selectedEndHour < 6;
+        let isJournee = (selectedStartHour < 18 && selectedEndHour > 12) || (selectedEndHour > selectedStartHour && !isDemiJournee && !isSoiree);
+
+        let valueText = 'Demi-journée';
+        if (isSoiree && isJournee) {
+            valueText = 'Journée & Soirée';
+        } else if (isSoiree && isDemiJournee) {
+            valueText = 'Demi-journée & Soirée';
+        } else if (isSoiree) {
+            valueText = 'Soirée';
+        } else if (isJournee) {
+            valueText = 'Journée';
+        }
+
+        $('#regime-demi-j-s').val(valueText);
+    }
+
+    $('#select1, #select2').on('change', function() {
+        updateValue();
+        updatePeriodAndPrice();
+    });
+
+      function parseDate() {
+        var dateInput = document.getElementById('date').value;
+        var dates = dateInput.split(',');
+        return new Date(dates[0].trim());
+    }
+
+    var script1Logic = {
+        0: {1: 'bg-blue', 5: 'bg-blue', 2: 'bg-red', 3: 'bg-red', 4: 'bg-red', 6: 'bg-green', 0: 'bg-green'},
+        1: {4: 'bg-blue', default: 'bg-green'},
+        2: {1: 'bg-blue', 5: 'bg-blue', 2: 'bg-red', 3: 'bg-red', 4: 'bg-red', 6: 'bg-green', 0: 'bg-green'},
+        3: {4: 'bg-blue', default: 'bg-green'},
+        4: {2: 'bg-blue', 4: 'bg-blue', default: 'bg-green'},
+        5: {1: 'bg-blue', 5: 'bg-blue', 2: 'bg-red', 3: 'bg-red', 4: 'bg-red', 6: 'bg-green', 0: 'bg-green'},
+        6: {1: 'bg-blue', 5: 'bg-blue', 2: 'bg-red', 3: 'bg-red', 4: 'bg-red', 6: 'bg-green', 0: 'bg-green'},
+        7: {default: 'bg-green'},
+        8: {1: 'bg-blue', 5: 'bg-blue', 2: 'bg-red', 3: 'bg-red', 4: 'bg-red', 6: 'bg-green', 0: 'bg-green'},
+        9: {2: 'bg-blue', 4: 'bg-blue', default: 'bg-green'},
+        10: {2: 'bg-blue', 4: 'bg-blue', default: 'bg-green'},
+        11: {1: 'bg-blue', 5: 'bg-blue', 2: 'bg-red', 3: 'bg-red', 4: 'bg-red', 6: 'bg-green', 0: 'bg-green'}
+    };
+
+      var script2Logic = {
+        0: {1: 'bg-blue', 5: 'bg-blue', 2: 'bg-red', 3: 'bg-red', 4: 'bg-red', 0: 'bg-green', 6: 'bg-blue'},
+        1: {4: 'bg-blue', 6: 'bg-blue'},
+        2: {1: 'bg-blue', 5: 'bg-blue', 2: 'bg-red', 3: 'bg-red', 4: 'bg-red', 0: 'bg-green', 6: 'bg-blue'},
+        3: {4: 'bg-blue', 6: 'bg-blue'},
+        4: {2: 'bg-blue', 4: 'bg-blue', 6: 'bg-blue'},
+        5: {1: 'bg-blue', 5: 'bg-blue', 2: 'bg-red', 3: 'bg-red', 4: 'bg-red', 0: 'bg-green', 6: 'bg-blue'},
+        6: {1: 'bg-blue', 5: 'bg-blue', 2: 'bg-red', 3: 'bg-red', 4: 'bg-red', 0: 'bg-green', 6: 'bg-blue'},
+        7: {6: 'bg-blue'},
+        8: {1: 'bg-blue', 5: 'bg-blue', 2: 'bg-red', 3: 'bg-red', 4: 'bg-red', 0: 'bg-green', 6: 'bg-blue'},
+        9: {2: 'bg-blue', 4: 'bg-blue', 6: 'bg-blue'},
+        10: {2: 'bg-blue', 4: 'bg-blue', 6: 'bg-blue'},
+        11: {1: 'bg-blue', 5: 'bg-blue', 2: 'bg-red', 3: 'bg-red', 4: 'bg-red', 0: 'bg-green', 6: 'bg-blue'}
+    };
+
+      var script3Logic = {
+        0: 'bg-green',
+        1: 'bg-green',
+        2: 'bg-green',
+        3: {4: 'bg-blue', 6: 'bg-blue', 0: 'bg-blue'},
+        4: {4: 'bg-blue', 6: 'bg-blue', 0: 'bg-blue'},
+        5: {1: 'bg-blue'},
+        6: {1: 'bg-blue'},
+        7: {1: 'bg-blue'},
+        8: {1: 'bg-blue'},
+        9: 'bg-green',
+        10: 'bg-green',
+        11: 'bg-green'
+    };
+
+    function getColorClassForDate(date, regime) {
+        var logic = (regime === '1') ? script1Logic : (regime === '2') ? script2Logic : script3Logic;
+        var monthLogic = logic[date.getMonth()];
+        var dayOfWeek = date.getDay();
+        return (typeof monthLogic === 'object') ? (monthLogic[dayOfWeek] || monthLogic['default'] || 'bg-green') : monthLogic;
+    }
+
+      function getPeriodFromColorClass(colorClass) {
+        return colorClass === 'bg-green' ? 'periode creuse' : colorClass === 'bg-blue' ? 'periode normale' : 'periode pleine';
+    }
+
+    function getPricePeriod(periode, demiJS) {
+        var key = periode + demiJS;
+        var pricePeriodPath = {
+            'periode creuseDemi-journée': '{{wf {&quot;path&quot;:&quot;prix-demi-journee-periode-creuse&quot;,&quot;type&quot;:&quot;Number&quot;\} }}',
+            'periode normaleDemi-journée': '{{wf {&quot;path&quot;:&quot;prix-demi-journee-periode-normale&quot;,&quot;type&quot;:&quot;Number&quot;\} }}',
+            'periode pleineDemi-journée': '{{wf {&quot;path&quot;:&quot;prix-demi-journee-periode-pleine&quot;,&quot;type&quot;:&quot;Number&quot;\} }}',
+            'periode creuseJournée': '{{wf {&quot;path&quot;:&quot;prix-journee-periode-creuse&quot;,&quot;type&quot;:&quot;Number&quot;\} }}',
+            'periode normaleJournée': '{{wf {&quot;path&quot;:&quot;prix-journee-periode-normale&quot;,&quot;type&quot;:&quot;Number&quot;\} }}',
+            'periode pleineJournée': '{{wf {&quot;path&quot;:&quot;prix-journee-periode-pleine&quot;,&quot;type&quot;:&quot;Number&quot;\} }}',
+            'periode creuseSoirée': '{{wf {&quot;path&quot;:&quot;prix-soiree-periode-creuse&quot;,&quot;type&quot;:&quot;Number&quot;\} }}',
+            'periode normaleSoirée': '{{wf {&quot;path&quot;:&quot;prix-soiree-periode-normale&quot;,&quot;type&quot;:&quot;Number&quot;\} }}',
+            'periode pleineSoirée': '{{wf {&quot;path&quot;:&quot;prix-soiree-periode-pleine&quot;,&quot;type&quot;:&quot;Number&quot;\} }}'
+        };
+
+              'periode creuseDemi-journée & Soirée': '{{wf {&quot;path&quot;:&quot;prix-demi-journee-periode-creuse&quot;,&quot;type&quot;:&quot;Number&quot;\} }} + {{wf {&quot;path&quot;:&quot;prix-soiree-periode-creuse&quot;,&quot;type&quot;:&quot;Number&quot;\} }}',
+        'periode normaleDemi-journée & Soirée': '{{wf {&quot;path&quot;:&quot;prix-demi-journee-periode-normale&quot;,&quot;type&quot;:&quot;Number&quot;\} }} + {{wf {&quot;path&quot;:&quot;prix-soiree-periode-normale&quot;,&quot;type&quot;:&quot;Number&quot;\} }}',
+        'periode pleineDemi-journée & Soirée': '{{wf {&quot;path&quot;:&quot;prix-demi-journee-periode-pleine&quot;,&quot;type&quot;:&quot;Number&quot;\} }} + {{wf {&quot;path&quot;:&quot;prix-soiree-periode-pleine&quot;,&quot;type&quot;:&quot;Number&quot;\} }}',
+        'periode creuseJournée & Soirée': '{{wf {&quot;path&quot;:&quot;prix-journee-periode-creuse&quot;,&quot;type&quot;:&quot;Number&quot;\} }} + {{wf {&quot;path&quot;:&quot;prix-soiree-periode-creuse&quot;,&quot;type&quot;:&quot;Number&quot;\} }}',
+        'periode normaleJournée & Soirée': '{{wf {&quot;path&quot;:&quot;prix-journee-periode-normale&quot;,&quot;type&quot;:&quot;Number&quot;\} }} + {{wf {&quot;path&quot;:&quot;prix-soiree-periode-normale&quot;,&quot;type&quot;:&quot;Number&quot;\} }}',
+        'periode pleineJournée & Soirée': '{{wf {&quot;path&quot;:&quot;prix-journee-periode-pleine&quot;,&quot;type&quot;:&quot;Number&quot;\} }} + {{wf {&quot;path&quot;:&quot;prix-soiree-periode-pleine&quot;,&quot;type&quot;:&quot;Number&quot;\} }}',
+        };
+        return pricePeriodPath[key];
+    }
+
+                      function updatePeriodAndPrice() {
+        var date = parseDate();
+        var regime = document.getElementById('regime-prix').value;
+        var colorClass = getColorClassForDate(date, regime);
+        var periode = getPeriodFromColorClass(colorClass);
+        var demiJS = document.getElementById('regime-demi-j-s').value;
+        var pricePeriodKey = periode + demiJS;
+
+        var pricePeriodPath = getPricePeriod(periode, demiJS);
+
+        document.getElementById('periode').value = periode;
+        document.getElementById('prix-periode').value = pricePeriodPath;
+        document.getElementById('prix-tarif').innerText = pricePeriodPath;
+
+        if(periode && demiJS) {
+            $('#tarif-applicable').text(`${demiJS} en ${periode}`);
+        } else {
+            $('#tarif-applicable').text(demiJS);
+        }
+
+        console.log("Total price before discount:", pricePeriodPath);
+        applyDiscount();
+    }
+
+    updatePeriodAndPrice();
+
+    document.getElementById('date').addEventListener('change', updatePeriodAndPrice);
+    document.getElementById('regime-prix').addEventListener('change', updatePeriodAndPrice);
+    document.getElementById('regime-demi-j-s').addEventListener('change', updatePeriodAndPrice);
+
+    console.log("Initial applyDiscount call");
+    applyDiscount();
+});
+
+
